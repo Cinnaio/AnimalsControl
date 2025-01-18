@@ -1,0 +1,83 @@
+# 可以进行繁殖控制的动物列表
+breeding_animals:
+  - COW
+  - SHEEP
+  - PIG
+  - CHICKEN
+  - RABBIT
+
+# 调试设置
+debug:
+  enabled: true
+  # 是否显示详细的时间信息
+  show_time: true
+  # 是否显示动物死亡事件
+  show_death_event: true
+  # 死亡事件显示范围（方块）
+  death_event_radius: 32.0
+
+# 繁殖所需的小麦数量
+breeding_wheat_required: 2
+
+# 成长所需的小麦数量
+growth_wheat_required: 18
+
+# 时间相关配置（单位：秒）
+time_settings:
+  # 饥饿死亡时间（默认7天）
+  starvation_time: 604800
+  # 分配给附近动物的时间（默认1天）
+  share_time: 86400
+  # 检查范围（单位：方块）
+  check_radius: 5.0
+
+# 繁殖相关配置
+breeding_settings:
+  # 普通喂食时进入繁殖状态的概率（0.1 = 10%）
+  breed_chance: 0.1
+  # 繁殖状态持续时间（单位：tick，20tick = 1秒）
+  breed_duration: 600
+  # 是否允许野生动物直接进入繁殖状态
+  wild_animal_instant_breed: true
+
+# 消息配置
+messages:
+  not_enough_wheat_breeding: "&c需要 {amount} 个小麦才能使动物繁殖！"
+  not_enough_wheat_growth: "&c需要 {amount} 个小麦才能使幼崽成长！"
+  growth_success: "&a成功喂食！还需要 {remaining} 个小麦才能成长。"
+  growth_complete: "&a喂食完成！动物已经长大。"
+  animal_starved: "&c一只动物因饥饿死亡了！"
+  animal_fed: "&a成功喂食动物！"
+  wild_animal_first_feed: "&a首次喂食野生动物！"
+  breed_success: "&a动物进入了繁殖状态！"
+  time_shared: "&7附近的动物分享了死亡动物的时间。"
+  time_info: "&7距离饥饿死亡还剩：{time}"
+  debug:
+    breed_chance: "&7[调试] 繁殖概率检查：{chance}"
+    death_event: "&7[调试] 动物死亡事件：\n&7- 类型：{type}\n&7- 位置：{location}\n&7- 生存时间：{lifetime}秒\n&7- 附近动物数量：{nearby_count}"
+
+# 显示设置
+display:
+  # 是否在动物头顶显示剩余时间
+  show_remaining_time: true
+  # 显示格式
+  time_format: "&7剩余: {time}"
+  # 饥饿状态显示
+  starved_format: "&c已饥饿"
+  # 更新设置
+  update:
+    # 更新间隔（单位：tick，20tick = 1秒）
+    interval: 100
+    # 只更新玩家附近的动物
+    only_near_players: true
+    # 更新范围（方块）
+    range: 48.0
+
+# 饥饿检查设置
+starvation_check:
+  # 检查间隔（单位：tick，20tick = 1秒）
+  interval: 1200  # 默认1分钟
+  # 只检查玩家附近的动物
+  only_near_players: true
+  # 检查范围（方块）
+  range: 64.0 
