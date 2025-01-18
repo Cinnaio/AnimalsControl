@@ -4,20 +4,18 @@ import com.github.cinnaio.animalscontrol.AnimalsControl;
 import org.bukkit.Material;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Animals;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.inventory.PlayerInventory;
 
 import java.util.List;
 import java.util.Random;
-import java.util.Collection;
 
 public class AnimalControlListener implements Listener {
     private final AnimalsControl plugin;

@@ -134,10 +134,6 @@ public class AnimalControlData {
         return debugEnabled;
     }
 
-    public boolean isShowTimeDebug() {
-        return showTimeDebug;
-    }
-
     public boolean isShowDeathEvent() {
         return debugEnabled && showDeathEvent;
     }
@@ -148,14 +144,6 @@ public class AnimalControlData {
 
     public boolean isShowRemainingTime() {
         return showRemainingTime;
-    }
-
-    public String getTimeFormat() {
-        return timeFormat;
-    }
-
-    public String getStarvedFormat() {
-        return starvedFormat;
     }
 
     public int getUpdateInterval() {
@@ -223,7 +211,7 @@ public class AnimalControlData {
         if (days > 0) result.append(days).append("天");
         if (hours > 0) result.append(hours).append("小时");
         if (minutes > 0) result.append(minutes).append("分钟");
-        if (seconds > 0 || result.length() == 0) result.append(seconds).append("秒");
+        if (seconds > 0 || result.isEmpty()) result.append(seconds).append("秒");
 
         return result.toString();
     }
