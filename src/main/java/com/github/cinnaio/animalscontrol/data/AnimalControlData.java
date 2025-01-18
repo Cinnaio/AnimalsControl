@@ -25,7 +25,6 @@ public class AnimalControlData {
     private int growthWheatRequired;
 
     private boolean debugEnabled;
-    private boolean showTimeDebug;
     private boolean showDeathEvent;
     private double deathEventRadius;
 
@@ -68,7 +67,7 @@ public class AnimalControlData {
 
         // 加载调试设置
         debugEnabled = config.getBoolean("debug.enabled", false);
-        showTimeDebug = config.getBoolean("debug.show_time", false);
+        boolean showTimeDebug = config.getBoolean("debug.show_time", false);
         showDeathEvent = config.getBoolean("debug.show_death_event", true);
         deathEventRadius = config.getDouble("debug.death_event_radius", 32.0);
 
