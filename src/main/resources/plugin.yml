@@ -1,0 +1,17 @@
+name: AnimalsControl
+version: '${version}'
+main: com.github.cinnaio.animalscontrol.AnimalsControl
+api-version: '1.21'
+api: '1.21'
+description: '控制动物繁殖和成长的插件'
+
+commands:
+  acreload:
+    description: '重载插件配置'
+    usage: '/acreload'
+    permission: animalscontrol.reload
+
+permissions:
+  animalscontrol.reload:
+    description: '重载插件配置的权限'
+    default: op
