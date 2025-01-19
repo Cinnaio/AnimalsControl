@@ -19,9 +19,6 @@ debug:
 # 繁殖所需的小麦数量
 breeding_wheat_required: 2
 
-# 成长所需的小麦数量
-growth_wheat_required: 18
-
 # 时间相关配置（单位：秒）
 time_settings:
   # 饥饿死亡时间（默认7天）
@@ -43,9 +40,6 @@ breeding_settings:
 # 消息配置
 messages:
   not_enough_wheat_breeding: "&c需要 {amount} 个小麦才能使动物繁殖！"
-  not_enough_wheat_growth: "&c需要 {amount} 个小麦才能使幼崽成长！"
-  growth_success: "&a成功喂食！还需要 {remaining} 个小麦才能成长。"
-  growth_complete: "&a喂食完成！动物已经长大。"
   animal_starved: "&c一只动物因饥饿死亡了！"
   animal_fed: "&a成功喂食动物！"
   wild_animal_first_feed: "&a首次喂食野生动物！"

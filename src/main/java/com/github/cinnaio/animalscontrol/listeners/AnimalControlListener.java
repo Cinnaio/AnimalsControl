@@ -57,12 +57,6 @@ public class AnimalControlListener implements Listener {
 
         event.setCancelled(true);
 
-        // 如果是幼崽，优先处理成长
-        if (!animal.isAdult()) {
-            handleBabyGrowth(animal, player, heldItem);
-            return;
-        }
-
         long currentTime = System.currentTimeMillis() / 1000;
         PersistentDataContainer pdc = animal.getPersistentDataContainer();
         Long oldTime = pdc.get(plugin.getLastFeedKey(), PersistentDataType.LONG);
@@ -226,42 +220,6 @@ public class AnimalControlListener implements Listener {
                     remaining = 0;
                 }
             }
-        }
-    }
-
-    private void handleBabyGrowth(Animals animal, Player player, ItemStack heldItem) {
-        PersistentDataContainer pdc = animal.getPersistentDataContainer();
-        Integer fedWheat = pdc.get(plugin.getWheatKey(), PersistentDataType.INTEGER);
-        int wheatRequired = plugin.getAnimalData().getGrowthWheatRequired();
-
-        // 如果没有记录，初始化为0
-        if (fedWheat == null) {
-            fedWheat = 0;
-        }
-
-        // 检查玩家是否有足够的小麦
-        PlayerInventory inventory = player.getInventory();
-        if (getWheatCount(inventory) < wheatRequired - fedWheat) {
-            player.sendMessage(plugin.getAnimalData().getMessage("not_enough_wheat_growth", 
-                "amount", wheatRequired - fedWheat));
-            return;
-        }
-
-        // 消耗一个小麦并更新计数
-        heldItem.setAmount(heldItem.getAmount() - 1);
-        fedWheat++;
-        pdc.set(plugin.getWheatKey(), PersistentDataType.INTEGER, fedWheat);
-
-        if (fedWheat >= wheatRequired) {
-            // 达到所需数量，立即成年
-            ((Ageable) animal).setAge(0);
-            player.sendMessage(plugin.getAnimalData().getMessage("growth_complete"));
-            // 清除计数
-            pdc.remove(plugin.getWheatKey());
-        } else {
-            // 还未达到所需数量，显示进度
-            player.sendMessage(plugin.getAnimalData().getMessage("growth_success", 
-                "remaining", wheatRequired - fedWheat));
         }
     }
 } 

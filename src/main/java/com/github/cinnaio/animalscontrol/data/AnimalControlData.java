@@ -22,7 +22,6 @@ public class AnimalControlData {
     private boolean wildAnimalInstantBreed;
     private List<String> breedingAnimals;
     private int breedingWheatRequired;
-    private int growthWheatRequired;
 
     private boolean debugEnabled;
     private boolean showDeathEvent;
@@ -63,7 +62,6 @@ public class AnimalControlData {
         wildAnimalInstantBreed = config.getBoolean("breeding_settings.wild_animal_instant_breed", true);
         breedingAnimals = config.getStringList("breeding_animals");
         breedingWheatRequired = config.getInt("breeding_wheat_required", 2);
-        growthWheatRequired = config.getInt("growth_wheat_required", 18);
 
         // 加载调试设置
         debugEnabled = config.getBoolean("debug.enabled", false);
@@ -124,10 +122,6 @@ public class AnimalControlData {
         return breedingWheatRequired;
     }
 
-    public int getGrowthWheatRequired() {
-        return growthWheatRequired;
-    }
-
     public boolean isDebugEnabled() {
         return debugEnabled;
     }
@@ -168,20 +162,6 @@ public class AnimalControlData {
         return starvationCheckRange;
     }
 
-    // 获取格式化的消息
-    public String getMessage(String path, Object... args) {
-        String message = config.getString("messages." + path, "");
-        message = translateColors(message);
-        if (args != null && args.length > 0) {
-            for (int i = 0; i < args.length; i += 2) {
-                if (i + 1 < args.length) {
-                    message = message.replace("{" + args[i] + "}", String.valueOf(args[i + 1]));
-                }
-            }
-        }
-        return message;
-    }
-
     // 发送调试消息
     public void sendDebugMessage(Player player, String path, Object... args) {
         if (debugEnabled) {
@@ -220,5 +200,19 @@ public class AnimalControlData {
             return starvedFormat;
         }
         return timeFormat.replace("{time}", formatTimeRemaining(remainingTime));
+    }
+
+    // 获取格式化的消息
+    public String getMessage(String path, Object... args) {
+        String message = config.getString("messages." + path, "");
+        message = translateColors(message);
+        if (args != null && args.length > 0) {
+            for (int i = 0; i < args.length; i += 2) {
+                if (i + 1 < args.length) {
+                    message = message.replace("{" + args[i] + "}", String.valueOf(args[i + 1]));
+                }
+            }
+        }
+        return message;
     }
 } 
