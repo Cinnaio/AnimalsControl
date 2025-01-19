@@ -1,9 +1,9 @@
 package com.github.cinnaio.animalscontrol.data;
 
 import com.github.cinnaio.animalscontrol.AnimalsControl;
+import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.Location;
 
 import java.util.List;
 
@@ -214,5 +214,9 @@ public class AnimalControlData {
             }
         }
         return message;
+    }
+
+    public void setShowRemainingTime(boolean showRemainingTime) {
+        this.showRemainingTime = showRemainingTime;
     }
 } 
