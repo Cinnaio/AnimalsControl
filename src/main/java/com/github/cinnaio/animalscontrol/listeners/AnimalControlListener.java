@@ -2,7 +2,6 @@ package com.github.cinnaio.animalscontrol.listeners;
 
 import com.github.cinnaio.animalscontrol.AnimalsControl;
 import org.bukkit.Material;
-import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
