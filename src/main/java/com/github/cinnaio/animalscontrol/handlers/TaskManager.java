@@ -28,11 +28,8 @@ public class TaskManager {
     }
 
     private void startUpdateTask() {
+        int interval = plugin.getAnimalData().getUpdateInterval();
         updateTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
-            if (!plugin.getAnimalData().isShowRemainingTime()) {
-                return;
-            }
-
             if (plugin.getAnimalData().isOnlyNearPlayers()) {
                 // 只更新玩家附近的动物
                 for (Player player : Bukkit.getOnlinePlayers()) {
@@ -40,7 +37,12 @@ public class TaskManager {
                     player.getNearbyEntities(range, range, range).stream()
                         .filter(entity -> entity instanceof Animals)
                         .map(entity -> (Animals) entity)
-                        .forEach(animalHandler::updateAnimalNameTag);
+                        .forEach(animal -> {
+                            animalHandler.updateAnimalNameTag(animal); // 更新动物名称
+                            if (!plugin.getAnimalData().isShowRemainingTime()) {
+                                animal.setCustomNameVisible(false); // 立即隐藏名称
+                            }
+                        });
                 }
             } else {
                 // 更新所有世界的动物
@@ -48,10 +50,15 @@ public class TaskManager {
                     world.getEntities().stream()
                         .filter(entity -> entity instanceof Animals)
                         .map(entity -> (Animals) entity)
-                        .forEach(animalHandler::updateAnimalNameTag);
+                        .forEach(animal -> {
+                            animalHandler.updateAnimalNameTag(animal); // 更新动物名称
+                            if (!plugin.getAnimalData().isShowRemainingTime()) {
+                                animal.setCustomNameVisible(false); // 立即隐藏名称
+                            }
+                        });
                 }
             }
-        }, plugin.getAnimalData().getUpdateInterval(), plugin.getAnimalData().getUpdateInterval());
+        }, interval, interval);
     }
 
     private void startStarvationCheckTask() {

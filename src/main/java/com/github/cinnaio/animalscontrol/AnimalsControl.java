@@ -1,18 +1,12 @@
 package com.github.cinnaio.animalscontrol;
 
 import com.github.cinnaio.animalscontrol.data.AnimalControlData;
-import com.github.cinnaio.animalscontrol.listeners.AnimalControlListener;
-import com.github.cinnaio.animalscontrol.handlers.TaskManager;
 import com.github.cinnaio.animalscontrol.handlers.AnimalHandler;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.bukkit.entity.Animals;
-import org.bukkit.entity.Entity;
+import com.github.cinnaio.animalscontrol.handlers.CommandHandler;
+import com.github.cinnaio.animalscontrol.handlers.TaskManager;
+import com.github.cinnaio.animalscontrol.listeners.AnimalControlListener;
 import org.bukkit.NamespacedKey;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.entity.Player;
 
 public final class AnimalsControl extends JavaPlugin {
     private NamespacedKey wheatKey;
@@ -22,6 +16,7 @@ public final class AnimalsControl extends JavaPlugin {
     private int checkStarvationTask;
     private TaskManager taskManager;
     private AnimalHandler animalHandler;
+    private CommandHandler commandHandler;
 
     @Override
     public void onEnable() {
@@ -38,20 +33,14 @@ public final class AnimalsControl extends JavaPlugin {
         // 初始化处理器和任务管理器
         animalHandler = new AnimalHandler(this);
         taskManager = new TaskManager(this, animalHandler);
+        commandHandler = new CommandHandler(this);
         
         // 注册监听器
         getServer().getPluginManager().registerEvents(new AnimalControlListener(this), this);
         
-        // 注册重载命令
-        getCommand("acreload").setExecutor((sender, command, label, args) -> {
-            if (sender.hasPermission("animalscontrol.reload")) {
-                animalData.reload();
-                sender.sendMessage("§a配置已重载！");
-            } else {
-                sender.sendMessage("§c你没有权限执行此命令！");
-            }
-            return true;
-        });
+        // 注册命令
+        getCommand("acreload").setExecutor(commandHandler::onCommand);
+        getCommand("toggleRemainingTime").setExecutor(commandHandler::onCommand);
 
         // 启动定时任务
         taskManager.startTasks();

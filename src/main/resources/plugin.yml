@@ -10,8 +10,15 @@ commands:
     description: '重载插件配置'
     usage: '/acreload'
     permission: animalscontrol.reload
+  toggleRemainingTime:
+    description: '切换显示剩余时间'
+    usage: '/toggleRemainingTime'
+    permission: animalscontrol.toggleRemainingTime
 
 permissions:
   animalscontrol.reload:
     description: '重载插件配置的权限'
     default: op
+  animalscontrol.toggleRemainingTime:
+    description: '切换显示剩余时间的权限'
+    default: true
