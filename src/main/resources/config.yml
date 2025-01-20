@@ -52,7 +52,7 @@ messages:
 
 # 显示设置
 display:
-  # 是否在动物头顶显示剩余时间
+  # 是否在动物头顶常驻显示剩余时间
   show_remaining_time: true
   # 显示格式
   time_format: "&7剩余: {time}"
