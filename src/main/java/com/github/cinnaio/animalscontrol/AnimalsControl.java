@@ -5,6 +5,7 @@ import com.github.cinnaio.animalscontrol.handlers.AnimalHandler;
 import com.github.cinnaio.animalscontrol.handlers.CommandHandler;
 import com.github.cinnaio.animalscontrol.handlers.TaskManager;
 import com.github.cinnaio.animalscontrol.listeners.AnimalControlListener;
+import com.github.cinnaio.animalscontrol.listeners.BabyAnimalListener;
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -12,8 +13,6 @@ public final class AnimalsControl extends JavaPlugin {
     private NamespacedKey wheatKey;
     private NamespacedKey lastFeedKey;
     private AnimalControlData animalData;
-    private int updateTask;
-    private int checkStarvationTask;
     private TaskManager taskManager;
     private AnimalHandler animalHandler;
     private CommandHandler commandHandler;
@@ -37,6 +36,7 @@ public final class AnimalsControl extends JavaPlugin {
         
         // 注册监听器
         getServer().getPluginManager().registerEvents(new AnimalControlListener(this), this);
+        getServer().getPluginManager().registerEvents(new BabyAnimalListener(this), this);
         
         // 注册命令
         getCommand("acreload").setExecutor(commandHandler::onCommand);
@@ -63,7 +63,4 @@ public final class AnimalsControl extends JavaPlugin {
         return animalData;
     }
 
-    public AnimalHandler getAnimalHandler() {
-        return animalHandler;
-    }
 }

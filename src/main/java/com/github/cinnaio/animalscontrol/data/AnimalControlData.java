@@ -1,9 +1,7 @@
 package com.github.cinnaio.animalscontrol.data;
 
 import com.github.cinnaio.animalscontrol.AnimalsControl;
-import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Player;
 
 import java.util.List;
 
@@ -24,10 +22,7 @@ public class AnimalControlData {
     private int breedingWheatRequired;
 
     private boolean debugEnabled;
-    private boolean showDeathEvent;
-    private double deathEventRadius;
 
-    private boolean showRemainingTime;
     private String timeFormat;
     private String starvedFormat;
 
@@ -38,6 +33,8 @@ public class AnimalControlData {
     private int starvationCheckInterval;
     private boolean onlyCheckNearPlayers;
     private double starvationCheckRange;
+
+    private boolean showRemainingTime;
 
     public AnimalControlData(AnimalsControl plugin) {
         this.plugin = plugin;
@@ -65,11 +62,8 @@ public class AnimalControlData {
 
         // 加载调试设置
         debugEnabled = config.getBoolean("debug.enabled", false);
-        showDeathEvent = config.getBoolean("debug.show_death_event", true);
-        deathEventRadius = config.getDouble("debug.death_event_radius", 32.0);
 
         // 加载显示设置
-        showRemainingTime = config.getBoolean("display.show_remaining_time", true);
         timeFormat = translateColors(config.getString("display.time_format", "&7剩余: {time}"));
         starvedFormat = translateColors(config.getString("display.starved_format", "&c已饥饿"));
 
@@ -82,6 +76,9 @@ public class AnimalControlData {
         starvationCheckInterval = config.getInt("starvation_check.interval", 1200);
         onlyCheckNearPlayers = config.getBoolean("starvation_check.only_near_players", true);
         starvationCheckRange = config.getDouble("starvation_check.range", 64.0);
+
+        // 加载剩余时间显示设置
+        showRemainingTime = config.getBoolean("display.show_remaining_time", true);
     }
 
     // 将 & 转换为 §
@@ -126,18 +123,6 @@ public class AnimalControlData {
         return debugEnabled;
     }
 
-    public boolean isShowDeathEvent() {
-        return debugEnabled && showDeathEvent;
-    }
-
-    public double getDeathEventRadius() {
-        return deathEventRadius;
-    }
-
-    public boolean isShowRemainingTime() {
-        return showRemainingTime;
-    }
-
     public int getUpdateInterval() {
         return updateInterval;
     }
@@ -162,16 +147,12 @@ public class AnimalControlData {
         return starvationCheckRange;
     }
 
-    // 发送调试消息
-    public void sendDebugMessage(Player player, String path, Object... args) {
-        if (debugEnabled) {
-            player.sendMessage(getMessage("debug." + path, args));
-        }
+    public boolean isShowRemainingTime() {
+        return showRemainingTime;
     }
 
-    // 格式化位置信息
-    public String formatLocation(Location loc) {
-        return String.format("(%.1f, %.1f, %.1f)", loc.getX(), loc.getY(), loc.getZ());
+    public void setShowRemainingTime(boolean showRemainingTime) {
+        this.showRemainingTime = showRemainingTime;
     }
 
     // 格式化时间显示（将秒转换为可读格式）
@@ -216,7 +197,4 @@ public class AnimalControlData {
         return message;
     }
 
-    public void setShowRemainingTime(boolean showRemainingTime) {
-        this.showRemainingTime = showRemainingTime;
-    }
-} 
+}

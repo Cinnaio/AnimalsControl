@@ -27,12 +27,13 @@ public class AnimalControlListener implements Listener {
     @EventHandler
     public void onBreedAttempt(EntityBreedEvent event) {
         if (!(event.getBreeder() instanceof Player player)) return;
-        
+
         if (!plugin.getAnimalData().getBreedingAnimals().contains(event.getEntity().getType().name())) return;
 
+        // 处理繁殖逻辑
         PlayerInventory inventory = player.getInventory();
         int wheatRequired = plugin.getAnimalData().getBreedingWheatRequired();
-        
+
         if (getWheatCount(inventory) < wheatRequired) {
             event.setCancelled(true);
             player.sendMessage(plugin.getAnimalData().getMessage("not_enough_wheat_breeding", 
@@ -42,6 +43,18 @@ public class AnimalControlListener implements Listener {
 
         consumeWheat(inventory, wheatRequired);
         player.sendMessage(plugin.getAnimalData().getMessage("breed_success"));
+
+        // 获取新生幼崽
+        Animals baby = (Animals) event.getEntity();
+
+        // 设置幼崽的喂养时间
+        long currentTime = System.currentTimeMillis() / 1000;
+        baby.getPersistentDataContainer().set(plugin.getLastFeedKey(), PersistentDataType.LONG, currentTime);
+        
+        // 发送消息给玩家
+        player.sendMessage(plugin.getAnimalData().getMessage("wild_animal_first_feed"));
+        String timeRemaining = plugin.getAnimalData().formatTimeRemaining(plugin.getAnimalData().getStarvationTime());
+        player.sendMessage(plugin.getAnimalData().getMessage("time_info", "time", timeRemaining));
     }
 
     @EventHandler
@@ -63,29 +76,40 @@ public class AnimalControlListener implements Listener {
         // 消耗一个小麦
         heldItem.setAmount(heldItem.getAmount() - 1);
 
+        // 记录喂养者信息
+        pdc.set(plugin.getWheatKey(), PersistentDataType.STRING, player.getUniqueId().toString());
+
         if (oldTime == null) {
-            handleFirstFeeding(animal, currentTime);
+            handleFirstFeeding(animal, currentTime, player);
         } else {
-            handleNormalFeeding(animal, currentTime);
+            handleNormalFeeding(animal, currentTime, player);
+        }
+
+        if (oldTime != null) {
+            long remainingTime = plugin.getAnimalData().getStarvationTime() - (currentTime - oldTime);
+            
+            if (remainingTime <= 0) {
+                // 如果已经饥饿，立即处理死亡
+                handleStarvation(plugin, animal, player);
+                return;
+            }
         }
     }
 
-    private void handleFirstFeeding(Animals animal, long currentTime) {
+    private void handleFirstFeeding(Animals animal, long currentTime, Player player) {
         animal.getPersistentDataContainer().set(
             plugin.getLastFeedKey(), 
             PersistentDataType.LONG, 
             currentTime
         );
-        
-        // 获取附近的玩家
-        animal.getWorld().getNearbyPlayers(animal.getLocation(), 16).forEach(player -> {
-            player.sendMessage(plugin.getAnimalData().getMessage("wild_animal_first_feed"));
-            // 显示饥饿时间
-            String timeRemaining = plugin.getAnimalData().formatTimeRemaining(
-                plugin.getAnimalData().getStarvationTime()
-            );
-            player.sendMessage(plugin.getAnimalData().getMessage("time_info", "time", timeRemaining));
-        });
+
+        // 直接使用传入的 player 参数
+        player.sendMessage(plugin.getAnimalData().getMessage("wild_animal_first_feed"));
+        // 显示饥饿时间
+        String timeRemaining = plugin.getAnimalData().formatTimeRemaining(
+            plugin.getAnimalData().getStarvationTime()
+        );
+        player.sendMessage(plugin.getAnimalData().getMessage("time_info", "time", timeRemaining));
 
         if (!animal.isAdult()) return;
         if (plugin.getAnimalData().isWildAnimalInstantBreed()) {
@@ -93,29 +117,16 @@ public class AnimalControlListener implements Listener {
         }
     }
 
-    public static void handleStarvation(AnimalsControl plugin, Animals animal) {
+    public static void handleStarvation(AnimalsControl plugin, Animals animal, Player player) {
         double radius = plugin.getAnimalData().getCheckRadius();
-        String animalType = animal.getType().name();
         
-        // 只处理配置中允许的动物类型
-        if (!plugin.getAnimalData().getBreedingAnimals().contains(animalType)) {
-            animal.remove();
-            return;
-        }
-
-        // 获取指定范围内的同类动物
+        // 获取指定范围内的动物
         List<Animals> nearbyAnimals = animal.getNearbyEntities(radius, radius, radius).stream()
             .filter(entity -> entity instanceof Animals)
             .map(entity -> (Animals) entity)
-            .filter(nearbyAnimal -> 
-                nearbyAnimal.getType().name().equals(animalType) &&
-                nearbyAnimal != animal &&
-                nearbyAnimal.getPersistentDataContainer().has(plugin.getLastFeedKey(), PersistentDataType.LONG)
-            )
-            .map(entity -> (Animals) entity)
             .toList();
 
-        // 如果有同类动物，分配时间
+        // 如果有附近动物，分配时间
         if (!nearbyAnimals.isEmpty()) {
             long timeShare = plugin.getAnimalData().getShareTime() / nearbyAnimals.size();
             
@@ -140,58 +151,44 @@ public class AnimalControlListener implements Listener {
         long lifetime = birthTime != null ? (System.currentTimeMillis() / 1000) - birthTime : 0;
         String lifetimeStr = plugin.getAnimalData().formatTimeRemaining(lifetime);
         
-        // 发送消息给附近的玩家
-        animal.getWorld().getNearbyPlayers(animal.getLocation(), 
-            plugin.getAnimalData().getDeathEventRadius()
-        ).forEach(player -> {
-            player.sendMessage(plugin.getAnimalData().getMessage("animal_starved"));
-            if (!nearbyAnimals.isEmpty()) {
-                player.sendMessage(plugin.getAnimalData().getMessage("time_shared"));
-            }
-            
-            // 如果启用了死亡事件显示
-            if (plugin.getAnimalData().isShowDeathEvent()) {
-                plugin.getAnimalData().sendDebugMessage(player, "death_event",
-                    "type", animalType,
-                    "location", plugin.getAnimalData().formatLocation(animal.getLocation()),
-                    "lifetime", lifetimeStr,
-                    "nearby_count", nearbyAnimals.size()
-                );
-            }
-        });
+        // 发送消息给指定的玩家
+        player.sendMessage(plugin.getAnimalData().getMessage("animal_starved"));
+        if (!nearbyAnimals.isEmpty()) {
+            player.sendMessage(plugin.getAnimalData().getMessage("time_shared"));
+        }
         
         // 移除死亡动物
         animal.remove();
     }
 
-    private void handleNormalFeeding(Animals animal, long currentTime) {
+    private void handleNormalFeeding(Animals animal, long currentTime, Player player) {
         animal.getPersistentDataContainer().set(
             plugin.getLastFeedKey(),
             PersistentDataType.LONG,
             currentTime
         );
+
+        // 直接使用传入的 player 参数
+        player.sendMessage(plugin.getAnimalData().getMessage("animal_fed"));
+
+        // 计算并显示剩余时间
+        long remainingTime = plugin.getAnimalData().getStarvationTime() - 
+            (System.currentTimeMillis() / 1000 - currentTime);
+        String timeRemaining = plugin.getAnimalData().formatTimeRemaining(remainingTime);
         
-        // 获取附近的玩家
-        animal.getWorld().getNearbyPlayers(animal.getLocation(), 16).forEach(player -> {
-            player.sendMessage(plugin.getAnimalData().getMessage("animal_fed"));
-            
-            // 计算并显示剩余时间
-            long remainingTime = plugin.getAnimalData().getStarvationTime() - 
-                (System.currentTimeMillis() / 1000 - currentTime);
-            String timeRemaining = plugin.getAnimalData().formatTimeRemaining(remainingTime);
+        // 仅在 show_remaining_time 为 true 时显示剩余时间
+        if (plugin.getAnimalData().isShowRemainingTime()) {
             player.sendMessage(plugin.getAnimalData().getMessage("time_info", "time", timeRemaining));
-        });
-        
+        }
+
         if (!animal.isAdult()) return;
         double chance = plugin.getAnimalData().getBreedChance();
         if (random.nextDouble() < chance) {
             animal.setLoveModeTicks(plugin.getAnimalData().getBreedDuration());
-            
+
             // 发送调试消息
             if (plugin.getAnimalData().isDebugEnabled()) {
-                animal.getWorld().getNearbyPlayers(animal.getLocation(), 16).forEach(player -> 
-                    plugin.getAnimalData().sendDebugMessage(player, "breed_chance", 
-                        "chance", String.format("%.1f%%", chance * 100)));
+                player.sendMessage(plugin.getAnimalData().getMessage("debug.breed_chance", "chance", String.format("%.1f%%", chance * 100)));
             }
         }
     }

@@ -3,6 +3,7 @@ package com.github.cinnaio.animalscontrol.handlers;
 import com.github.cinnaio.animalscontrol.AnimalsControl;
 import com.github.cinnaio.animalscontrol.listeners.AnimalControlListener;
 import org.bukkit.entity.Animals;
+import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -13,7 +14,7 @@ public class AnimalHandler {
         this.plugin = plugin;
     }
 
-    public void updateAnimalNameTag(Animals animal) {
+    public void updateAnimalNameTag(Animals animal, Player player) {
         PersistentDataContainer pdc = animal.getPersistentDataContainer();
         Long lastFeedTime = pdc.get(plugin.getLastFeedKey(), PersistentDataType.LONG);
         
@@ -23,7 +24,7 @@ public class AnimalHandler {
             
             if (remainingTime <= 0) {
                 // 如果已经饥饿，立即处理死亡
-                AnimalControlListener.handleStarvation(plugin, animal);
+                checkAndHandleStarvationWithPlayer(animal, player);
                 return;
             }
             
@@ -37,7 +38,7 @@ public class AnimalHandler {
         }
     }
 
-    public void checkAndHandleStarvation(Animals animal) {
+    public void checkAndHandleStarvation(Animals animal, Player player) {
         PersistentDataContainer pdc = animal.getPersistentDataContainer();
         Long lastFeedTime = pdc.get(plugin.getLastFeedKey(), PersistentDataType.LONG);
         
@@ -47,7 +48,22 @@ public class AnimalHandler {
             
             if (timeDelta > plugin.getAnimalData().getStarvationTime()) {
                 // 如果超过饥饿时间，调用饥饿处理
-                AnimalControlListener.handleStarvation(plugin, animal);
+                checkAndHandleStarvationWithPlayer(animal, player);
+            }
+        }
+    }
+
+    public void checkAndHandleStarvationWithPlayer(Animals animal, Player player) {
+        PersistentDataContainer pdc = animal.getPersistentDataContainer();
+        Long lastFeedTime = pdc.get(plugin.getLastFeedKey(), PersistentDataType.LONG);
+        
+        if (lastFeedTime != null) {
+            long currentTime = System.currentTimeMillis() / 1000;
+            long timeDelta = currentTime - lastFeedTime;
+            
+            if (timeDelta > plugin.getAnimalData().getStarvationTime()) {
+                // 如果超过饥饿时间，调用饥饿处理
+                AnimalControlListener.handleStarvation(plugin, animal, player);
             }
         }
     }

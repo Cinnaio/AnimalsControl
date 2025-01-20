@@ -38,7 +38,7 @@ public class TaskManager {
                         .filter(entity -> entity instanceof Animals)
                         .map(entity -> (Animals) entity)
                         .forEach(animal -> {
-                            animalHandler.updateAnimalNameTag(animal); // 更新动物名称
+                            animalHandler.updateAnimalNameTag(animal, player); // 传递 player 参数
                             if (!plugin.getAnimalData().isShowRemainingTime()) {
                                 animal.setCustomNameVisible(false); // 立即隐藏名称
                             }
@@ -51,10 +51,7 @@ public class TaskManager {
                         .filter(entity -> entity instanceof Animals)
                         .map(entity -> (Animals) entity)
                         .forEach(animal -> {
-                            animalHandler.updateAnimalNameTag(animal); // 更新动物名称
-                            if (!plugin.getAnimalData().isShowRemainingTime()) {
-                                animal.setCustomNameVisible(false); // 立即隐藏名称
-                            }
+                            // 这里需要处理没有玩家的情况，可能需要其他逻辑
                         });
                 }
             }
@@ -70,7 +67,7 @@ public class TaskManager {
                     player.getNearbyEntities(range, range, range).stream()
                         .filter(entity -> entity instanceof Animals)
                         .map(entity -> (Animals) entity)
-                        .forEach(animalHandler::checkAndHandleStarvation);
+                        .forEach(animal -> animalHandler.checkAndHandleStarvation(animal, player)); // 传递 player 参数
                 }
             } else {
                 // 检查所有世界的动物
@@ -78,7 +75,9 @@ public class TaskManager {
                     world.getEntities().stream()
                         .filter(entity -> entity instanceof Animals)
                         .map(entity -> (Animals) entity)
-                        .forEach(animalHandler::checkAndHandleStarvation);
+                        .forEach(animal -> {
+                            // 这里需要处理没有玩家的情况，可能需要其他逻辑
+                        });
                 }
             }
         }, plugin.getAnimalData().getStarvationCheckInterval(), plugin.getAnimalData().getStarvationCheckInterval());
