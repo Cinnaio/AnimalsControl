@@ -79,20 +79,31 @@ public class AnimalControlListener implements Listener {
         // 记录喂养者信息
         pdc.set(plugin.getWheatKey(), PersistentDataType.STRING, player.getUniqueId().toString());
 
-        if (oldTime == null) {
-            handleFirstFeeding(animal, currentTime, player);
-        } else {
-            handleNormalFeeding(animal, currentTime, player);
-        }
-
+        // 检查动物的生存时间
         if (oldTime != null) {
-            long remainingTime = plugin.getAnimalData().getStarvationTime() - (currentTime - oldTime);
-            
-            if (remainingTime <= 0) {
+            // 检查动物是否已经饥饿
+            if ((plugin.getAnimalData().getStarvationTime() - (currentTime - oldTime)) <= 0) {
                 // 如果已经饥饿，立即处理死亡
                 handleStarvation(plugin, animal, player);
                 return;
             }
+
+            // 使用配置中的 breed_chance 进行繁殖概率检查
+            double breedChance = plugin.getAnimalData().getBreedChance();
+            if (random.nextDouble() < breedChance) {
+                animal.setLoveModeTicks(plugin.getAnimalData().getBreedDuration());
+                player.sendMessage(plugin.getAnimalData().getMessage("breed_success"));
+            }
+        } else {
+            // 如果是第一次喂养，100%进入发情状态
+            animal.setLoveModeTicks(plugin.getAnimalData().getBreedDuration());
+            player.sendMessage(plugin.getAnimalData().getMessage("breed_success"));
+        }
+
+        if (oldTime == null) {
+            handleFirstFeeding(animal, currentTime, player);
+        } else {
+            handleNormalFeeding(animal, currentTime, player);
         }
     }
 
@@ -111,8 +122,12 @@ public class AnimalControlListener implements Listener {
         );
         player.sendMessage(plugin.getAnimalData().getMessage("time_info", "time", timeRemaining));
 
+        // 检查动物是否成年
         if (!animal.isAdult()) return;
+
+        // 检查是否允许野生动物立即进入繁殖状态
         if (plugin.getAnimalData().isWildAnimalInstantBreed()) {
+            // 设置动物的繁殖模式持续时间
             animal.setLoveModeTicks(plugin.getAnimalData().getBreedDuration());
         }
     }
@@ -149,8 +164,7 @@ public class AnimalControlListener implements Listener {
         PersistentDataContainer pdc = animal.getPersistentDataContainer();
         Long birthTime = pdc.get(plugin.getLastFeedKey(), PersistentDataType.LONG);
         long lifetime = birthTime != null ? (System.currentTimeMillis() / 1000) - birthTime : 0;
-        String lifetimeStr = plugin.getAnimalData().formatTimeRemaining(lifetime);
-        
+
         // 发送消息给指定的玩家
         player.sendMessage(plugin.getAnimalData().getMessage("animal_starved"));
         if (!nearbyAnimals.isEmpty()) {
@@ -181,7 +195,9 @@ public class AnimalControlListener implements Listener {
             player.sendMessage(plugin.getAnimalData().getMessage("time_info", "time", timeRemaining));
         }
 
-        if (!animal.isAdult()) return;
+        // 检查动物是否成年
+        if (!animal.isAdult()) return; // 如果动物不是成年，直接返回，不执行后续逻辑
+
         double chance = plugin.getAnimalData().getBreedChance();
         if (random.nextDouble() < chance) {
             animal.setLoveModeTicks(plugin.getAnimalData().getBreedDuration());
