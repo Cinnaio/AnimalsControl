@@ -39,8 +39,7 @@ public final class AnimalsControl extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BabyAnimalListener(this), this);
         
         // 注册命令
-        getCommand("acreload").setExecutor(commandHandler::onCommand);
-        getCommand("toggleRemainingTime").setExecutor(commandHandler::onCommand);
+        getCommand("animalcontrol").setExecutor(commandHandler);
 
         // 启动定时任务
         taskManager.startTasks();

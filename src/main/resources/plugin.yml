@@ -6,6 +6,10 @@ api: '1.21'
 description: '控制动物繁殖和成长的插件'
 
 commands:
+  animalcontrol:
+    description: '动物控制插件的命令'
+    usage: '/animalcontrol <reload|toggle>'
+    permission: animalscontrol.reload
   acreload:
     description: '重载插件配置'
     usage: '/acreload'
